@@ -4,6 +4,7 @@ import Home from '../frontOffice/pages/Home';
 import Register from '../frontOffice/pages/Register';
 import Login from '../frontOffice/pages/Login';
 import NotFound from '../frontOffice/pages/NotFound';
+import ProducteurDashboard from '../frontOffice/pages/ProducteurDashboard';
 
 const AppRoutes = () => {
   return (
@@ -11,6 +12,7 @@ const AppRoutes = () => {
         <Route path='/' element={<Home/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/producer/dashboard" element={<ProducteurDashboard />} />
         <Route path="*" element={<NotFound />} />
     </Routes>
   );
