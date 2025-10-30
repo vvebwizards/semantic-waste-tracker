@@ -1,11 +1,11 @@
 import './App.css'
-import AppRoutes from './routes/AppRoutes';
 
 function App() {
   return (
-    <div className="App">
-      <AppRoutes />
-    </div>
+   <>
+   <h1>Waste Management Semantic Web Application</h1>
+    <p>Welcome to the Waste Management Semantic Web Application!</p>
+   </>
   )
 }
 

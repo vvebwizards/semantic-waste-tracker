@@ -20,6 +20,5 @@ from django.urls import path
 from django.urls import include
 
 urlpatterns = [
-    path('api/auth/', include('users.urls')),
     path('api/production/', include('backend_app.production.urls')),
 ]
