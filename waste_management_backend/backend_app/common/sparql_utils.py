@@ -1,6 +1,8 @@
 from SPARQLWrapper import SPARQLWrapper, JSON, POST
-
-FUSEKI_URL = "http://localhost:3030/waste_management"
+from dotenv import load_dotenv
+import os
+load_dotenv() 
+FUSEKI_URL = os.environ.get("SPARQL_ENDPOINT")
 
 class FusekiClient:
     def __init__(self):

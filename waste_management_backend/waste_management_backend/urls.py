@@ -21,4 +21,5 @@ from django.urls import include
 
 urlpatterns = [
     path('api/production/', include('backend_app.production.urls')),
+    path('api/', include('backend_app.urls')),
 ]
