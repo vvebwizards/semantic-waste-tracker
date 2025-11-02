@@ -88,3 +88,25 @@ button:hover {
   margin: 0;
   color: #0077cc;
 }
+
+textarea {
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  font-family: monospace;
+  margin-top: 0.5rem;
+}
+
+button {
+  margin-top: 0.8rem;
+  background-color: #2d89ef;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #1b5cb8;
+}
