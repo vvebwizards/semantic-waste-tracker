@@ -8,6 +8,9 @@ from backend_app.common.ai_parser import extract_entities,generate_sparql_from_e
 
 @csrf_exempt
 def query_view(request):
+    """
+    Handle user question, extract entities, generate SPARQL, and return results.
+    """
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -29,3 +32,24 @@ def query_view(request):
     else:
         return JsonResponse({"status": "error", "message": "Only POST method allowed"}, status=405)
 
+@csrf_exempt
+def sparql_query_view(request):
+    """
+    Execute a raw SPARQL query from user input.
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            print(data)
+            sparql_query = data.get("sparql", "")
+            if not sparql_query:
+                return JsonResponse({"status": "error", "message": "SPARQL query is required"}, status=400)
+
+            print("DEBUG received SPARQL query:\n", sparql_query)
+            results = fuseki_client.execute_query(sparql_query)
+            return JsonResponse(results)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    else:
+        return JsonResponse({"status": "error", "message": "Only POST method allowed"}, status=405)
