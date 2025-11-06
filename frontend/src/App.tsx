@@ -4,6 +4,7 @@ import Producers from "./Producers";
 import Wastes from "./Wastes";
 import Statistics from "./Statistics";
 import "./App.css";
+import AddProducer from "./AddProducer";
 
 interface Result {
   label: string;
@@ -263,7 +264,6 @@ function Home() {
                 ))}
               </div>
 
-              {/* Full table toggle if more than two variables returned */}
               {columns.filter(Boolean).length > 2 && (
                 <div style={{ marginTop: "1rem" }}>
                   <button onClick={() => setShowTable((v) => !v)}>
@@ -315,6 +315,8 @@ function App() {
           <Route path="/producers" element={<Producers />} />
           <Route path="/wastes" element={<Wastes />} />
           <Route path="/statistics" element={<Statistics />} />
+          <Route path="/producers/add" element={<AddProducer />} />
+          <Route path="/producers/edit/:producerUri" element={<AddProducer />} />
           <Route path="/superviseurs" element={<div className="page-container"><h1>Page Superviseurs</h1><p>Contenu à venir...</p></div>} />
           <Route path="/centre_de_tri" element={<div className="page-container"><h1>Page Centre de tri</h1><p>Contenu à venir...</p></div>} />
         </Routes>
