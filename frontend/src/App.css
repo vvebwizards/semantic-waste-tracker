@@ -110,3 +110,48 @@ button {
 button:hover {
   background-color: #1b5cb8;
 }
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error-message {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  color: #c33;
+}
+
+.error-message p {
+  margin: 0;
+  color: #c33;
+}
+
+.loading {
+  margin-top: 20px;
+  padding: 12px;
+  text-align: center;
+  color: #0077cc;
+}
+
+.loading p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.relation {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+.relation-label {
+  color: #0077cc;
+  font-weight: bold;
+  margin-right: 4px;
+}
