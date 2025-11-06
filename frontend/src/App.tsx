@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Producers from "./Producers";
+import Wastes from "./Wastes";
+import Statistics from "./Statistics";
 import "./App.css";
 
 interface Result {
@@ -13,7 +17,39 @@ interface Binding {
   objet?: { value: string };
 }
 
-function App() {
+function Navigation() {
+  return (
+    <nav className="navigation">
+      <div className="nav-container">
+        <Link to="/" className="nav-brand">
+          ♻️ Recircle
+        </Link>
+        <div className="nav-links">
+          <Link to="/" className="nav-link">
+            Accueil
+          </Link>
+          <Link to="/producers" className="nav-link">
+            Producteurs
+          </Link>
+          <Link to="/wastes" className="nav-link">
+            Déchets
+          </Link>
+          <Link to="/superviseurs" className="nav-link">
+            Superviseur
+          </Link>
+          <Link to="/centre_de_tri" className="nav-link">
+            Centre de tri
+          </Link>
+          <Link to="/statistics" className="nav-link">
+            Statistiques
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function Home() {
   const [question, setQuestion] = useState("");
   const [sparql, setSparql] = useState("");
   const [results, setResults] = useState<Result[]>([]);
@@ -44,7 +80,6 @@ function App() {
       
       const bindings: Binding[] = data?.data?.results?.bindings || [];
       const cleanedResults: Result[] = bindings.map((b: Binding) => {
-        // Handle both sujet and objet
         const subject = b.sujet?.value;
         const object = b.objet?.value;
         
@@ -140,10 +175,9 @@ function App() {
   return (
     <div className="App">
       <div className="container">
-        <h1>Waste Management Semantic Web</h1>
-        <p>Ask a question about waste management:</p>
+        <h1>Recircle</h1>
+        <p>Posez une question sur la gestion des déchets</p>
 
-        {/* Natural language question section */}
         <div className="input-section">
           <input
             type="text"
@@ -160,33 +194,29 @@ function App() {
 
         <hr style={{ margin: "2rem 0", border: "1px solid #ccc" }} />
 
-        {/* SPARQL query section */}
         <div className="sparql-section">
-          <h2>Or execute a SPARQL query directly:</h2>
+          <h2>Ou exécutez directement une requête SPARQL </h2>
           <textarea
             rows={6}
             value={sparql}
             onChange={(e) => setSparql(e.target.value)}
-            placeholder="Write your SPARQL query here..."
+            placeholder="Écrivez ici une requête SPARQL...."
           />
           <button onClick={handleRawQuery}>Run SPARQL</button>
         </div>
 
-        {/* Error display */}
         {error && (
           <div className="error-message">
             <p>{error}</p>
           </div>
         )}
 
-        {/* Loading indicator */}
         {loading && (
           <div className="loading">
             <p>Chargement...</p>
           </div>
         )}
 
-        {/* Results display */}
         <div className="results">
           {results.length > 0 && (
             <>
@@ -208,6 +238,24 @@ function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <div className="App">
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/producers" element={<Producers />} />
+          <Route path="/wastes" element={<Wastes />} />
+          <Route path="/statistics" element={<Statistics />} />
+          <Route path="/superviseurs" element={<div className="page-container"><h1>Page Superviseurs</h1><p>Contenu à venir...</p></div>} />
+          <Route path="/centre_de_tri" element={<div className="page-container"><h1>Page Centre de tri</h1><p>Contenu à venir...</p></div>} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

@@ -5,4 +5,12 @@ urlpatterns = [
     path('test/', views.TestConnectionView.as_view(), name='test-connection'),
     path('classes/', views.GetClassesView.as_view(), name='get-classes'),
     path('properties/', views.GetClassPropertiesView.as_view(), name='get-properties'),
+
+     path('producers/', views.GetAllProducersView.as_view(), name='get_all_producers'),
+    path('producers/type/<str:producer_type>/', views.GetProducersByTypeView.as_view(), name='get_producers_by_type'),
+    path('producers/wastes/', views.GetProducerWastesView.as_view(), name='get_producer_wastes'),
+    path('producers/statistics/', views.GetProducersStatisticsView.as_view(), name='get_producers_statistics'),
+    path('producers/search/', views.SearchProducersView.as_view(), name='search_producers'),
+    path('producers/details/', views.GetProducerDetailsView.as_view(), name='get_producer_details'),
+    path('producers/city/', views.GetProducersByCityView.as_view(), name='get_producers_by_city'),
 ]
