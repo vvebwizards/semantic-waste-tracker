@@ -12,6 +12,7 @@ interface Result {
   objectUri?: string;
 }
 
+type VarValue = { value: string; type?: string };
 interface Binding {
   sujet?: { value: string };
   objet?: { value: string };
@@ -55,6 +56,9 @@ function Home() {
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [columns, setColumns] = useState<string[]>([]);
+  const [rawRows, setRawRows] = useState<Binding[]>([]);
+  const [showTable, setShowTable] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -136,28 +140,10 @@ function Home() {
       }
       
       const bindings: Binding[] = data?.data?.results?.bindings || [];
-      const cleanedResults: Result[] = bindings.map((b: Binding) => {
-        const subject = b.sujet?.value;
-        const object = b.objet?.value;
-        
-        if (subject) {
-          const subjectLabel = subject.split(/[#/]/).pop()?.replace(/_/g, " ") || subject;
-          if (object) {
-            const objectLabel = object.split(/[#/]/).pop()?.replace(/_/g, " ") || object;
-            return { 
-              label: subjectLabel, 
-              object: objectLabel,
-              subjectUri: subject,
-              objectUri: object
-            };
-          }
-          return { 
-            label: subjectLabel,
-            subjectUri: subject
-          };
-        }
-        return { label: "Résultat inconnu" };
-      });
+      const headVars: string[] = data?.data?.head?.vars || [];
+      const cleanedResults: Result[] = bindings.map(bindingToResult);
+      setColumns(headVars.length ? headVars : Object.keys(bindings[0] || {}));
+      setRawRows(bindings);
       
       setResults(cleanedResults);
       setSparql("");
@@ -233,6 +219,41 @@ function Home() {
                   </div>
                 ))}
               </div>
+
+              {/* Full table toggle if more than two variables returned */}
+              {columns.filter(Boolean).length > 2 && (
+                <div style={{ marginTop: "1rem" }}>
+                  <button onClick={() => setShowTable((v) => !v)}>
+                    {showTable ? "Masquer toutes les colonnes" : "Afficher toutes les colonnes"}
+                  </button>
+                  {showTable && (
+                    <div style={{ overflowX: "auto", marginTop: "0.75rem" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr>
+                            {columns.map((c) => (
+                              <th key={c} style={{ textAlign: "left", padding: "8px", borderBottom: "1px solid #ddd" }}>
+                                {c}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rawRows.map((row, idx) => (
+                            <tr key={idx}>
+                              {columns.map((c) => (
+                                <td key={c} style={{ padding: "8px", borderBottom: "1px solid #f0f0f0" }}>
+                                  {formatValue(row[c]) || ""}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>

@@ -48,7 +48,12 @@ CLASSES = [
     "Usine_Recyclage_Batteries", "Usine_Recyclage_Bois", "Usine_Recyclage_Electronique",
     "Usine_Recyclage_Metal", "Usine_Recyclage_Plastique", "Usine_Recyclage_Textile", "Usine_Recyclage_Verre",
     "Transporteur", "Transporteur_Camion-benne", "Transporteur_Camion-grue", "Transporteur_spécialisé",
-    "Collecteur", "Collecteur_Conteneur", "Collecteur_Municipal", "Collecteur_Prive"
+    "Collecteur", "Collecteur_Conteneur", "Collecteur_Municipal", "Collecteur_Prive",
+    "Centre_traitement", "Centre_compostage", "Centre_tri", 
+    "Centre_Compostage_Collectif", "Centre_Compostage_Individuel", "Centre_Compostage_Industriel",
+    "Centre_Tri_Automatise", "Centre_Tri_Densite", "Centre_Tri_Magnetique", "Centre_Tri_Manuel",
+    "Centre_Tri_Mixte", "Centre_Tri_Optique",
+    "Dechets_Organique", "Dechets_Plastique", "Dechets_Metal", "Dechets_Papier", "Dechets_Textile"
 ]
 
 CLASS_KEYWORDS = {
@@ -89,7 +94,19 @@ CLASS_KEYWORDS = {
     "Transporteur_spécialisé": ["transporteur spécialisé", "transporteur specialise", "transporteur spécialisé déchets", "transporteur spécialisé dangereux"],
     "Collecteur_Conteneur": ["collecteur conteneur", "collecte conteneur", "collecteur à conteneur"],
     "Collecteur_Municipal": ["collecteur municipal", "collecte municipale", "collecteur municipal", "collecte municipale"],
-    "Collecteur_Prive": ["collecteur privé", "collecteur prive", "collecte privée", "collecte privee"]
+    "Collecteur_Prive": ["collecteur privé", "collecteur prive", "collecte privée", "collecte privee"],
+        "Centre_compostage": ["centre compostage", "centres compostage", "compostage", "centre de compostage", "composteur"],
+    "Centre_tri": ["centre tri", "centres tri", "tri", "centre de tri", "centres de tri", "unité tri"],
+    "Centre_Compostage_Collectif": ["compostage collectif", "centre compostage collectif", "composteur collectif"],
+    "Centre_Compostage_Industriel": ["compostage industriel", "centre compostage industriel", "composteur industriel"],
+    "Centre_Tri_Automatise": ["tri automatisé", "tri automatise", "centre tri automatisé", "tri automatique"],
+    "Centre_Tri_Manuel": ["tri manuel", "centre tri manuel", "tri à la main"],
+    "Centre_Tri_Optique": ["tri optique", "centre tri optique", "tri par caméra"],
+    "Centre_Tri_Magnetique": ["tri magnétique", "tri magnetique", "aimant", "séparation magnétique"],
+    "Dechets_Organique": ["organique", "restes alimentaires", "déchets alimentaires", "biologique", "compostable", "biodéchet"],
+    "Dechets_Plastique": ["plastique", "emballage plastique", "déchets plastiques", "bouteille plastique"],
+    "Dechets_Metal": ["métal", "ferraille", "canette", "boîte conserve", "déchets métalliques"],
+    "Dechets_Papier": ["papier", "carton", "journal", "emballage carton"]
 }
 
 
@@ -145,6 +162,10 @@ def detect_attribute(question: str):
         "nomCentre": [
             r'\b(?:quel|le|un)\s+centre\s+(?:a pour nom|nommé|appelé|:)\s*["«]?([^"»\n?]+?)(?:\?|$|["»])',
             r'\bcentre\s+(?:a pour nom|nommé|appelé|:)\s*["«]?([^"»\n?]+?)(?:\?|$|["»])',
+            r'\b(?:à\s+)?(?:un|le|la|les)?\s*centre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
+            r'\bcentre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
+            r'\b(?:le|un)\s+centre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
+            r'\b(?:qui|que|le|la|les|un|une)\s+(?:audite|audit|affecte|supervise|contrôle)\s+(?:le|la|les|un|une)?\s*centre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
             r'\bnomCentre\s+["«]?([^"»\n]+)["»]?'
         ],
         "nomComplet": [
@@ -241,7 +262,42 @@ def detect_attribute(question: str):
             r'\bzone\s+de\s+couverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
             r'\bzone\s+couverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
             r'\bzoneCouverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?'
-        ]
+        ],
+
+         "capacite_journaliere": [
+        r'capacit[ée]\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'capacit[ée]\s+journali[èe]re\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'peut traiter\s+(\d+\.?\d*)\s+tonnes',
+        r'traite\s+(\d+\.?\d*)\s+tonnes'
+    ],
+    "debit_tri_heure": [
+        r'd[ée]bit\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'd[ée]bit\s+tri\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'trie\s+(\d+\.?\d*)\s+tonnes\/heure',
+        r'capacit[ée]\s+tri\s+(?:est|:)\s*(\d+\.?\d*)'
+    ],
+    "temps_compostage_jours": [
+        r'temps\s+compostage\s+(?:est|:)\s*(\d+)',
+        r'dur[ée]e\s+compostage\s+(?:est|:)\s*(\d+)',
+        r'composte\s+en\s+(\d+)\s+jours',
+        r'temps\s+n[ée]cessaire\s+(?:est|:)\s*(\d+)'
+    ],
+    "temperature_moyenne": [
+        r'temp[ée]rature\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'temp[ée]rature\s+moyenne\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'chauffe[ à]\s+(\d+\.?\d*)\s+degr[ée]s'
+    ],
+    "taux_purete_sortie": [
+        r'taux\s+puret[ée]\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'puret[ée]\s+sortie\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'qualit[ée]\s+tri\s+(?:est|:)\s*(\d+\.?\d*)%'
+    ],
+    "localisation": [
+        r'[àa]\s+(?!un\b|une\b|le\b|la\b|les\b|des\b|du\b|de\b)([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'dans\s+la\s+ville\s+(?:de\s+)?([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'localis[ée]\s+[àa]\s+(?!un\b|une\b|le\b|la\b|les\b|des\b|du\b|de\b)([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'situ[ée]\s+[àa]\s+(?!un\b|une\b|le\b|la\b|les\b|des\b|du\b|de\b)([A-ZÉÈÀ][a-zéèàêôûç\-]+)'
+    ]
     }
 
     # First check for boolean attributes separately to avoid duplicates
@@ -278,24 +334,44 @@ def detect_attribute(question: str):
     # Remove duplicates and prioritize specific attributes
     unique_attrs = []
     seen = set()
-    has_nomCentre = False
-    nomCentre_value = None
+    nomCentre_values = []
     
-    # First pass: identify nomCentre
+    # First pass: collect all nomCentre values
     for attr in attrs:
         if attr['name'] == 'nomCentre':
-            has_nomCentre = True
-            nomCentre_value = attr['value']
-            break
+            nomCentre_values.append(attr['value'])
     
-    # Second pass: add attributes, excluding nom if nomCentre exists
+    # If we have multiple nomCentre values, keep only the longest one (most complete)
+    nomCentre_value = None
+    if len(nomCentre_values) > 1:
+        nomCentre_value = max(nomCentre_values, key=len)
+        # Remove all nomCentre attributes from attrs
+        attrs = [attr for attr in attrs if attr['name'] != 'nomCentre']
+        # Add back only the longest nomCentre value
+        attrs.append({"name": "nomCentre", "value": nomCentre_value})
+    elif len(nomCentre_values) == 1:
+        nomCentre_value = nomCentre_values[0]
+    
+    # Second pass: add attributes, excluding nom and localisation if nomCentre exists
     for attr in attrs:
         attr_name = attr['name']
         attr_value = attr['value']
         
-        # If we have nomCentre, skip nom with the same value
-        if attr_name == "nom" and has_nomCentre and attr_value == nomCentre_value:
-            continue
+        # If we have nomCentre, skip nom with the same value or if nom is a substring of nomCentre
+        if attr_name == "nom" and nomCentre_value:
+            if attr_value == nomCentre_value or attr_value.lower() in nomCentre_value.lower():
+                continue
+        
+        # If we have nomCentre, skip localisation that is a substring of nomCentre
+        # (e.g., "Nord" should be removed if nomCentre is "Ariana Nord")
+        if attr_name == "localisation" and nomCentre_value:
+            if attr_value.lower() in nomCentre_value.lower():
+                continue
+        
+        # Skip nomCentre values that are substrings of other nomCentre values
+        if attr_name == "nomCentre" and nomCentre_value:
+            if attr_value != nomCentre_value and attr_value.lower() in nomCentre_value.lower():
+                continue
         
         key = (attr_name, attr_value)
         if key not in seen:
@@ -305,6 +381,23 @@ def detect_attribute(question: str):
     return unique_attrs
 
 
+def detect_intent(question: str):
+    """Detect higher-level intents for template queries.
+
+    Currently recognizes recycling chain questions like:
+    - "produit final" with "usine" or "recyclage"
+    - mentions of produit + recycl*
+    """
+    q = question.lower()
+    # robust to accents/variants by using partial stems
+    has_produit_final = ("produit final" in q) or ("produits finaux" in q) or ("produitfinal" in q)
+    has_recyclage = ("recycl" in q)  # matches recyclage / recyclé / recycler
+    has_usine = ("usine" in q)
+    if (has_produit_final and (has_usine or has_recyclage)) or ("usine de recyclage" in q and "produit" in q):
+        return "recycling_chain"
+    return None
+
+
 RELATIONS = {
     "produit": ["produit", "produisent", "fabriquent", "génèrent", "créent", "manufacturent"],
     "affecteA": ["affecté à", "affecte à", "affecté au", "affecté à un", "affecté à une", "affectés à", "affectés à un", "affectés à une", "assigné à", "assigné au", "assignés à", "supervise le", "supervise la", "supervise un", "supervise une"],
@@ -312,7 +405,11 @@ RELATIONS = {
     "régulé_par": ["régulé par", "réglementé par", "contrôlé par", "supervisé par"],
     "interagit_avec": ["interagit avec", "interagissent avec", "collabore avec", "collaborent avec"],
     "transporté_par": ["transporté par", "transporte par", "transportés par", "transportent par", "transporté", "transportée", "transportés", "transportées"],
-    "collecté_par": ["collecté par", "collecte par", "collectés par", "collectent par", "collecté", "collectée", "collectés", "collectées"]
+    "collecté_par": ["collecté par", "collecte par", "collectés par", "collectent par", "collecté", "collectée", "collectés", "collectées"],
+        "trie": ["trie", "trient", "sépare", "séparent", "classe", "classent", "triage"],
+    "traite_par_compostage": ["traite par compostage", "composte", "compostent", "transforme en compost", "valorise organique"],
+    "envoie_vers_compostage": ["envoie vers compostage", "envoie au compostage", "dirige vers compostage", "transfère vers compostage"],
+    "accepte_pour_tri": ["accepte pour tri", "accepte au tri", "prend pour tri", "reçoit pour tri"]
 }
 
 def detect_relation(question: str):
@@ -362,6 +459,40 @@ def extract_entities(question: str):
     if "tous les collecteurs" in q_lower or "liste des collecteurs" in q_lower or "collecteurs" in q_lower:
         found_classes.add("Collecteur")
 
+            # Détection spécifique pour tri et compostage
+    if any(word in q_lower for word in ["tri", "trie", "triage"]):
+        if "automat" in q_lower:
+            found_classes.add("Centre_Tri_Automatise")
+        elif "manuel" in q_lower:
+            found_classes.add("Centre_Tri_Manuel")
+        elif "optique" in q_lower:
+            found_classes.add("Centre_Tri_Optique")
+        elif "magnétique" in q_lower or "magnetique" in q_lower:
+            found_classes.add("Centre_Tri_Magnetique")
+        else:
+            found_classes.add("Centre_tri")
+    
+    if any(word in q_lower for word in ["compost", "compostage"]):
+        if "industriel" in q_lower:
+            found_classes.add("Centre_Compostage_Industriel")
+        elif "collectif" in q_lower:
+            found_classes.add("Centre_Compostage_Collectif")
+        elif "individuel" in q_lower:
+            found_classes.add("Centre_Compostage_Individuel")
+        else:
+            found_classes.add("Centre_compostage")
+    
+    # Détection des déchets spécifiques
+    if "organique" in q_lower or "compostable" in q_lower:
+        found_classes.add("Dechets_Organique")
+    if "plastique" in q_lower:
+        found_classes.add("Dechets_Plastique")
+    if "métal" in q_lower or "metal" in q_lower:
+        found_classes.add("Dechets_Metal")
+    if "papier" in q_lower or "carton" in q_lower:
+        found_classes.add("Dechets_Papier")
+
+
     
 
     classes_list = list(found_classes)
@@ -386,6 +517,17 @@ def extract_entities(question: str):
     if attrs:
         entities["attrs"] = attrs
 
+    # Detect if question asks for names (noms, nom complet, etc.)
+    if re.search(r'\b(?:les\s+)?noms?\b', q_lower) or re.search(r'\bnom\s+complet', q_lower):
+        # Check if it's about supervisors or other entities
+        if "superviseur" in q_lower or any("Superviseur" in cls for cls in found_classes):
+            entities["request_nomComplet"] = True
+
+    # High-level intent detection
+    intent = detect_intent(question)
+    if intent:
+        entities["intent"] = intent
+
     return entities
 
 
@@ -396,6 +538,17 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 """
+
+    # Template query for recycling chain intent
+    if entities.get("intent") == "recycling_chain":
+        query = f"""{PREFIX}SELECT * WHERE {{
+  ?produit ex:nom ?produitNom ;
+           ex:produit_par ?usine .
+  ?centre ex:transfere_vers ?usine .
+  ?dechet ex:recyclé_par ?centre ;
+          ex:nom ?dechetNom .
+}}"""
+        return query
 
     classes = entities.get("classes", [])
     relations = entities.get("relations", [])
@@ -432,7 +585,31 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     inverse_relations = ["régulé_par"]
     relation = relations[0] if relations else None
     
+    # Map "audite" to "affecteA" since that's what's used in the ontology
+    if relation == "audite":
+        relation = "affecteA"
+    
+    # Check if we need to add nomComplet to the query
+    request_nomComplet = entities.get("request_nomComplet", False)
+    
     if subject_class and object_class and relation:
+        if relation in ["trie", "traite_par_compostage", "accepte_pour_tri"]:
+            # Relations entre Centre_tri/Centre_compostage et Dechets
+            query_lines.append(f"?sujet a ?sujetType .")
+            query_lines.append(f"?sujetType rdfs:subClassOf* ex:{subject_class} .")
+            query_lines.append(f"?sujet ex:{relation} ?objet .")
+            query_lines.append(f"?objet a ?objetType .")
+            query_lines.append(f"?objetType rdfs:subClassOf* ex:{object_class} .")
+            select_vars.append("?objet")
+        
+        elif relation == "envoie_vers_compostage":
+            # Relation entre Centre_tri et Centre_compostage
+            query_lines.append(f"?sujet a ?sujetType .")
+            query_lines.append(f"?sujetType rdfs:subClassOf* ex:{subject_class} .")
+            query_lines.append(f"?sujet ex:{relation} ?objet .")
+            query_lines.append(f"?objet a ?objetType .")
+            query_lines.append(f"?objetType rdfs:subClassOf* ex:{object_class} .")
+            select_vars.append("?objet")
         # Check if relation is inverse
         if relation in inverse_relations:
             # For régulé_par: Dechet régulé_par Superviseur
@@ -458,15 +635,34 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             query_lines.append(f"?objet a ?objetType .")
             query_lines.append(f"?objetType rdfs:subClassOf* ex:{object_class} .")
             select_vars.append("?objet")
+        
+        # Add nomComplet if requested (for supervisor names)
+        if request_nomComplet and "Superviseur" in subject_class:
+            query_lines.append(f"?sujet ex:nomComplet ?nomComplet .")
 
         for attr in attrs:
+            # Determine which entity (subject or object) the attribute applies to
+            # For centre-related attributes (nomCentre, statutOperationnel, etc.), apply to object
+            # For superviseur-related attributes (nomComplet, actif, etc.), apply to subject
+            target_var = "?sujet"  # Default to subject
+            if attr['name'] in ["nomCentre", "statutOperationnel", "typeCentre", "horairesOuverture"]:
+                target_var = "?objet"  # Centre attributes apply to object
+            elif attr['name'] in ["nomComplet", "actif", "fonction", "email", "telephone", "zoneAffectation"]:
+                target_var = "?sujet"  # Superviseur attributes apply to subject
+            
             # Handle boolean attributes - use FILTER for boolean comparison
             if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
-                query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
+                query_lines.append(f"{target_var} ex:{attr['name']} ?{attr['name']} .")
                 query_lines.append(f"FILTER(?{attr['name']} = \"{bool_value}\"^^xsd:boolean)")
+            elif attr['name'] == "nomCentre":
+                # For nomCentre, use regex to match partial names (e.g., "Ariana Nord" matches "Centre Tri Ariana Nord")
+                query_lines.append(f"{target_var} ex:{attr['name']} ?{attr['name']} .")
+                # Escape special regex characters in the value
+                escaped_value = attr['value'].replace('\\', '\\\\').replace('^', '\\^').replace('$', '\\$').replace('.', '\\.').replace('*', '\\*').replace('+', '\\+').replace('?', '\\?').replace('(', '\\(').replace(')', '\\)').replace('[', '\\[').replace(']', '\\]').replace('{', '\\{').replace('}', '\\}').replace('|', '\\|')
+                query_lines.append(f"FILTER(REGEX(?{attr['name']}, \"{escaped_value}\", \"i\"))")
             else:
-                query_lines.append(f"?sujet ex:{attr['name']} \"{attr['value']}\" .")
+                query_lines.append(f"{target_var} ex:{attr['name']} \"{attr['value']}\" .")
 
     elif subject_class and relation:
         # Include subclasses for subject
@@ -548,7 +744,8 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         query_lines.append("?sujet ?p ?o .")
         select_vars.append("?o")
 
-    select_clause = "SELECT " + " ".join(select_vars)
+    # Project all bound variables so the frontend can optionally show a full table
+    select_clause = "SELECT *"
     where_clause = "\n".join(query_lines)
     
     return f"{PREFIX}{select_clause} WHERE {{\n{where_clause}\n}}"
@@ -571,6 +768,8 @@ if __name__ == "__main__":
         "Quel centre a pour nom Centre Compostage Manouba",
         "Quels superviseurs sont affectés à un centre de compostage",
         "Quels superviseurs sont affectés à un centre de tri Ariana Nord",
+        "Quels sont les noms des superviseurs qui audite le centre de Compostage Manouba",
+        "Quels sont les noms des superviseurs qui audite le centre de tri Ariana Nord",
         "Quels centres de compostage sont en service",
         "Quel centre a pour nom Centre Tri Ariana Nord",
         "Liste des centres de traitement",
@@ -586,6 +785,18 @@ if __name__ == "__main__":
         "Quels collecteurs sont agréés",
         "Quel collecteur collecte des déchets organiques",
         "Quels déchets sont collectés par un collecteur municipal"
+
+
+                "Quels centres de tri traitent les déchets plastiques",
+        "Quel centre de compostage accepte les déchets organiques",
+        "Liste des centres de tri automatique",
+        "Quel centre trie les déchets métalliques",
+        "Centres de compostage industriel à Paris",
+        "Quel centre envoie vers le compostage",
+        "Centres de tri avec capacité > 50 tonnes",
+        "Quels déchets sont triés par le centre TriAuto Paris",
+        "Centres de compostage avec température > 60°C",
+        "Quel centre a pour nom Compost Industriel Lille"
     ]
 
     for q in tests:
