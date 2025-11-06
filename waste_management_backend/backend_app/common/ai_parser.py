@@ -46,7 +46,9 @@ CLASSES = [
     "Centre_Tri_Automatise", "Centre_Tri_Densite", "Centre_Tri_Magnetique", "Centre_Tri_Manuel",
     "Centre_Tri_Mixte", "Centre_Tri_Optique",
     "Usine_Recyclage_Batteries", "Usine_Recyclage_Bois", "Usine_Recyclage_Electronique",
-    "Usine_Recyclage_Metal", "Usine_Recyclage_Plastique", "Usine_Recyclage_Textile", "Usine_Recyclage_Verre"
+    "Usine_Recyclage_Metal", "Usine_Recyclage_Plastique", "Usine_Recyclage_Textile", "Usine_Recyclage_Verre",
+    "Transporteur", "Transporteur_Camion-benne", "Transporteur_Camion-grue", "Transporteur_spécialisé",
+    "Collecteur", "Collecteur_Conteneur", "Collecteur_Municipal", "Collecteur_Prive"
 ]
 
 CLASS_KEYWORDS = {
@@ -81,7 +83,13 @@ CLASS_KEYWORDS = {
     "Usine_Recyclage_Metal": ["recyclage métal", "recyclage metal", "usine recyclage métal", "recyclage des métaux"],
     "Usine_Recyclage_Verre": ["recyclage verre", "usine recyclage verre", "recyclage du verre"],
     "Usine_Recyclage_Batteries": ["recyclage batteries", "usine recyclage batteries", "recyclage des batteries"],
-    "Usine_Recyclage_Electronique": ["recyclage électronique", "recyclage electronique", "usine recyclage électronique", "recyclage des déchets électroniques"]
+    "Usine_Recyclage_Electronique": ["recyclage électronique", "recyclage electronique", "usine recyclage électronique", "recyclage des déchets électroniques"],
+    "Transporteur_Camion-benne": ["transporteur camion-benne", "camion-benne", "camion benne", "transporteur camion benne"],
+    "Transporteur_Camion-grue": ["transporteur camion-grue", "camion-grue", "camion grue", "transporteur camion grue"],
+    "Transporteur_spécialisé": ["transporteur spécialisé", "transporteur specialise", "transporteur spécialisé déchets", "transporteur spécialisé dangereux"],
+    "Collecteur_Conteneur": ["collecteur conteneur", "collecte conteneur", "collecteur à conteneur"],
+    "Collecteur_Municipal": ["collecteur municipal", "collecte municipale", "collecteur municipal", "collecte municipale"],
+    "Collecteur_Prive": ["collecteur privé", "collecteur prive", "collecte privée", "collecte privee"]
 }
 
 
@@ -177,19 +185,79 @@ def detect_attribute(question: str):
             r'\bactifs?\b',
             r'\bactif\s+(?:est|:)\s*["«]?(true|false|vrai|faux|oui|non)["»]?',
             r'\bactif\s+["«]?(true|false|vrai|faux|oui|non)["»]?'
+        ],
+        "capciteCharge": [
+            r'\bcapacité\s+charge\s+(?:est|:)\s*(\d+\.?\d*)',
+            r'\bcapciteCharge\s+(?:est|:)\s*(\d+\.?\d*)',
+            r'\bcapacité\s+charge\s+["«]?(\d+\.?\d*)["»]?'
+        ],
+        "dateDernierControle": [
+            r'\bdate\s+dernier\s+contrôle\s+(?:est|:)\s*([\d\-T:]+)',
+            r'\bdate\s+dernier\s+controle\s+(?:est|:)\s*([\d\-T:]+)',
+            r'\bdateDernierControle\s+(?:est|:)\s*([\d\-T:]+)'
+        ],
+        "estCertifie": [
+            r'\bcertifi[ée]s?\b',
+            r'\bestCertifie\s+(?:est|:)\s*["«]?(true|false|vrai|faux|oui|non)["»]?',
+            r'\best\s+certifi[ée]\s+(?:est|:)\s*["«]?(true|false|vrai|faux|oui|non)["»]?'
+        ],
+        "idTransporteur": [
+            r'\bid\s+transporteur\s+(?:est|:)\s*["«]?([\w\-]+)["»]?',
+            r'\bidTransporteur\s+(?:est|:)\s*["«]?([\w\-]+)["»]?'
+        ],
+        "typeVehicule": [
+            r'\btype\s+véhicule\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\btype\s+vehicule\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\btypeVehicule\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?'
+        ],
+        "zoneIntervention": [
+            r'\bzone\s+d[\'"]?intervention\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\bzone\s+intervention\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\bzoneIntervention\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?'
+        ],
+        "dateAgrement": [
+            r'\bdate\s+agrément\s+(?:est|:)\s*([\d\-T:]+)',
+            r'\bdate\s+agrement\s+(?:est|:)\s*([\d\-T:]+)',
+            r'\bdateAgrement\s+(?:est|:)\s*([\d\-T:]+)'
+        ],
+        "estAgree": [
+            r'\bagr[ée]s?\b',
+            r'\bestAgree\s+(?:est|:)\s*["«]?(true|false|vrai|faux|oui|non)["»]?',
+            r'\best\s+agr[ée][ée]\s+(?:est|:)\s*["«]?(true|false|vrai|faux|oui|non)["»]?'
+        ],
+        "frequenceCollecte": [
+            r'\bfr[ée]quence\s+collecte\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\bfrequenceCollecte\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?'
+        ],
+        "idCollecteur": [
+            r'\bid\s+collecteur\s+(?:est|:)\s*["«]?([\w\-]+)["»]?',
+            r'\bidCollecteur\s+(?:est|:)\s*["«]?([\w\-]+)["»]?'
+        ],
+        "typeCollecte": [
+            r'\btype\s+collecte\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\btypeCollecte\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?'
+        ],
+        "zoneCouverture": [
+            r'\bzone\s+de\s+couverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\bzone\s+couverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
+            r'\bzoneCouverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?'
         ]
     }
 
-    # First check for "actif" attribute separately to avoid duplicates
+    # First check for boolean attributes separately to avoid duplicates
     if re.search(r'\bactifs?\b', question, re.IGNORECASE):
         attrs.append({"name": "actif", "value": "true"})
+    if re.search(r'\bcertifi[ée]s?\b', question, re.IGNORECASE):
+        attrs.append({"name": "estCertifie", "value": "true"})
+    if re.search(r'\bagr[ée]s?\b', question, re.IGNORECASE):
+        attrs.append({"name": "estAgree", "value": "true"})
     
     # Check if question is about "centre" - if so, prioritize nomCentre over nom
     is_about_centre = "centre" in question.lower()
     
     # Then process other attributes
     for attr_name, pattern_list in patterns.items():
-        if attr_name == "actif":
+        if attr_name in ["actif", "estCertifie", "estAgree"]:
             continue  # Already handled above
         
         # Skip "nom" if we're talking about centres and will detect nomCentre
@@ -242,7 +310,9 @@ RELATIONS = {
     "affecteA": ["affecté à", "affecte à", "affecté au", "affecté à un", "affecté à une", "affectés à", "affectés à un", "affectés à une", "assigné à", "assigné au", "assignés à", "supervise le", "supervise la", "supervise un", "supervise une"],
     "audite": ["audite le", "audite la", "audite un", "audite une", "audit le", "audit la", "contrôle le", "contrôle la", "inspecte le", "inspecte la", "vérifie le", "vérifie la"],
     "régulé_par": ["régulé par", "réglementé par", "contrôlé par", "supervisé par"],
-    "interagit_avec": ["interagit avec", "interagissent avec", "collabore avec", "collaborent avec"]
+    "interagit_avec": ["interagit avec", "interagissent avec", "collabore avec", "collaborent avec"],
+    "transporté_par": ["transporté par", "transporte par", "transportés par", "transportent par", "transporté", "transportée", "transportés", "transportées"],
+    "collecté_par": ["collecté par", "collecte par", "collectés par", "collectent par", "collecté", "collectée", "collectés", "collectées"]
 }
 
 def detect_relation(question: str):
@@ -287,11 +357,15 @@ def extract_entities(question: str):
             found_classes.add("Usine_recyclage")
         else:
             found_classes.add("Centre_traitement")
+    if "tous les transporteurs" in q_lower or "liste des transporteurs" in q_lower or "transporteurs" in q_lower:
+        found_classes.add("Transporteur")
+    if "tous les collecteurs" in q_lower or "liste des collecteurs" in q_lower or "collecteurs" in q_lower:
+        found_classes.add("Collecteur")
 
     
 
     classes_list = list(found_classes)
-    subject_classes = [cls for cls in classes_list if "Producteur" in cls or "Superviseur" in cls]
+    subject_classes = [cls for cls in classes_list if "Producteur" in cls or "Superviseur" in cls or "Transporteur" in cls or "Collecteur" in cls]
     object_classes = [cls for cls in classes_list if ("Dechet" in cls or "Dechets" in cls or "Centre" in cls or "Usine" in cls)]
     ordered_classes = subject_classes + object_classes
     entities["classes"] = ordered_classes
@@ -304,8 +378,8 @@ def extract_entities(question: str):
             entities["relations"].append(rel)
         elif len(subject_classes) > 0 and len(object_classes) > 0:
             entities["relations"].append(rel)
-        # Also add if explicitly asking about a relation (e.g., "qui affecte", "qui audite")
-        elif any(word in question.lower() for word in ["qui affecte", "qui audite", "qui supervise", "affecté", "supervise", "audite"]):
+        # Also add if explicitly asking about a relation (e.g., "qui affecte", "qui audite", "qui transporte", "qui collecte")
+        elif any(word in question.lower() for word in ["qui affecte", "qui audite", "qui supervise", "qui transporte", "qui transportent", "qui collecte", "qui collectent", "affecté", "supervise", "audite", "transporté", "collecté"]):
             entities["relations"].append(rel)
     
     attrs = detect_attribute(question)
@@ -334,7 +408,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     object_class = None
     
     # Prioritize more specific subclasses (e.g., Superviseur_Regional over Superviseur)
-    subject_classes = [cls for cls in classes if "Producteur" in cls or "Superviseur" in cls]
+    subject_classes = [cls for cls in classes if "Producteur" in cls or "Superviseur" in cls or "Transporteur" in cls or "Collecteur" in cls]
     object_classes = [cls for cls in classes if ("Dechet" in cls or "Dechets" in cls) or ("Centre" in cls or "Usine" in cls)]
     
     # Choose the most specific subject class (longer name = more specific)
@@ -387,7 +461,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
         for attr in attrs:
             # Handle boolean attributes - use FILTER for boolean comparison
-            if attr['name'] == "actif":
+            if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
                 query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
                 query_lines.append(f"FILTER(?{attr['name']} = \"{bool_value}\"^^xsd:boolean)")
@@ -403,7 +477,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
         for attr in attrs:
             # Handle boolean attributes - use FILTER for boolean comparison
-            if attr['name'] == "actif":
+            if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
                 query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
                 query_lines.append(f"FILTER(?{attr['name']} = \"{bool_value}\"^^xsd:boolean)")
@@ -417,7 +491,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         
         for attr in attrs:
             # Handle boolean attributes - use FILTER for boolean comparison
-            if attr['name'] == "actif":
+            if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
                 # Use FILTER with xsd:boolean type for proper comparison
                 query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
@@ -438,7 +512,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         
         for attr in attrs:
             # Handle boolean attributes - use FILTER for boolean comparison
-            if attr['name'] == "actif":
+            if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
                 query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
                 query_lines.append(f"FILTER(?{attr['name']} = \"{bool_value}\"^^xsd:boolean)")
@@ -452,7 +526,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         
         for attr in attrs:
             # Handle boolean attributes - use FILTER for boolean comparison
-            if attr['name'] == "actif":
+            if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
                 query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
                 query_lines.append(f"FILTER(?{attr['name']} = \"{bool_value}\"^^xsd:boolean)")
@@ -462,7 +536,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     elif attrs:
         for attr in attrs:
             # Handle boolean attributes - use FILTER for boolean comparison
-            if attr['name'] == "actif":
+            if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
                 query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
                 query_lines.append(f"FILTER(?{attr['name']} = \"{bool_value}\"^^xsd:boolean)")
@@ -501,7 +575,19 @@ if __name__ == "__main__":
         "Quel centre a pour nom Centre Tri Ariana Nord",
         "Liste des centres de traitement",
         "Liste des superviseurs",
-        "Quels superviseurs sont actifs"
+        "Quels superviseurs sont actifs",
+        
+        "Liste des transporteurs",
+        "Quels transporteurs sont certifiés",
+        "Quel transporteur transporte des déchets plastiques",
+        "Quels déchets sont transportés par un transporteur spécialisé",
+        "Quel transporteur a pour zone d'intervention Île-de-France",
+        
+        "Liste des collecteurs",
+        "Quels collecteurs sont agréés",
+        "Quel collecteur collecte des déchets organiques",
+        "Quels déchets sont collectés par un collecteur municipal",
+        "Quel collecteur a pour zone de couverture Lyon et agglo"
     ]
 
     for q in tests:
