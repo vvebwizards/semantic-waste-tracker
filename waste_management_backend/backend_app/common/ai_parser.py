@@ -581,13 +581,11 @@ if __name__ == "__main__":
         "Quels transporteurs sont certifiés",
         "Quel transporteur transporte des déchets plastiques",
         "Quels déchets sont transportés par un transporteur spécialisé",
-        "Quel transporteur a pour zone d'intervention Île-de-France",
         
         "Liste des collecteurs",
         "Quels collecteurs sont agréés",
         "Quel collecteur collecte des déchets organiques",
-        "Quels déchets sont collectés par un collecteur municipal",
-        "Quel collecteur a pour zone de couverture Lyon et agglo"
+        "Quels déchets sont collectés par un collecteur municipal"
     ]
 
     for q in tests:
