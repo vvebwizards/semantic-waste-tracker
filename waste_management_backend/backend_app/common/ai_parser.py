@@ -421,7 +421,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
     # Template query for recycling chain intent
     if entities.get("intent") == "recycling_chain":
-        query = f"""{PREFIX}SELECT ?produitNom ?dechetNom WHERE {{
+        query = f"""{PREFIX}SELECT * WHERE {{
   ?produit ex:nom ?produitNom ;
            ex:produit_par ?usine .
   ?centre ex:transfere_vers ?usine .
@@ -581,7 +581,8 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         query_lines.append("?sujet ?p ?o .")
         select_vars.append("?o")
 
-    select_clause = "SELECT " + " ".join(select_vars)
+    # Project all bound variables so the frontend can optionally show a full table
+    select_clause = "SELECT *"
     where_clause = "\n".join(query_lines)
     
     return f"{PREFIX}{select_clause} WHERE {{\n{where_clause}\n}}"
