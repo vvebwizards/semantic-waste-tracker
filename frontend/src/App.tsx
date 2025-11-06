@@ -14,10 +14,71 @@ interface Result {
 
 type VarValue = { value: string; type?: string };
 interface Binding {
-  sujet?: { value: string };
-  objet?: { value: string };
+  sujet?: VarValue;
+  objet?: VarValue;
+  [varName: string]: VarValue | undefined;
 }
 
+function formatValue(v?: VarValue): string | undefined {
+  if (!v) return undefined;
+  const val = v.value;
+  if (/^https?:\/\//i.test(val)) {
+    const last = val.split(/[#/]/).pop() || val;
+    return last.replace(/_/g, " ");
+  }
+  return val;
+}
+
+function bindingToResult(b: Binding): Result {
+  const keys = Object.keys(b);
+  const lowerToKey: Record<string, string> = {};
+  keys.forEach((k) => (lowerToKey[k.toLowerCase()] = k));
+
+  const prefer = (names: string[]): VarValue | undefined => {
+    for (const n of names) {
+      const key = lowerToKey[n];
+      if (key && b[key]) return b[key];
+    }
+    return undefined;
+  };
+  const produit = prefer(["produitnom", "produit", "productname", "product"]);
+  const dechet = prefer(["dechetnom", "dechet", "wastename", "waste"]);
+  if (produit) {
+    const subjectLabel = formatValue(produit) || produit.value;
+    if (dechet) {
+      const objectLabel = formatValue(dechet) || dechet.value;
+      return { label: subjectLabel, object: objectLabel };
+    }
+    return { label: subjectLabel };
+  }
+
+  const subject = prefer(["sujet", "subject"]);
+  const object = prefer(["objet", "object"]);
+  if (subject) {
+    const subjectLabel = formatValue(subject) || subject.value;
+    if (object) {
+      const objectLabel = formatValue(object) || object.value;
+      return {
+        label: subjectLabel,
+        object: objectLabel,
+        subjectUri: subject.value,
+        objectUri: object.value,
+      };
+    }
+    return { label: subjectLabel, subjectUri: subject.value };
+  }
+
+   if (keys.length > 0) {
+    const firstKey = keys[0];
+    const secondKey = keys[1];
+    const firstVal = formatValue(b[firstKey]);
+    const secondVal = formatValue(b[secondKey as keyof Binding]);
+    if (firstVal && secondVal) return { label: firstVal, object: secondVal };
+    if (firstVal) return { label: firstVal };
+  }
+
+  return { label: "Résultat inconnu" };
+}
 function Navigation() {
   return (
     <nav className="navigation">
@@ -83,29 +144,11 @@ function Home() {
       }
       
       const bindings: Binding[] = data?.data?.results?.bindings || [];
-      const cleanedResults: Result[] = bindings.map((b: Binding) => {
-        const subject = b.sujet?.value;
-        const object = b.objet?.value;
-        
-        if (subject) {
-          const subjectLabel = subject.split(/[#/]/).pop()?.replace(/_/g, " ") || subject;
-          if (object) {
-            const objectLabel = object.split(/[#/]/).pop()?.replace(/_/g, " ") || object;
-            return { 
-              label: subjectLabel, 
-              object: objectLabel,
-              subjectUri: subject,
-              objectUri: object
-            };
-          }
-          return { 
-            label: subjectLabel,
-            subjectUri: subject
-          };
-        }
-        return { label: "Résultat inconnu" };
-      });
-      
+       const headVars: string[] = data?.data?.head?.vars || [];
+      const cleanedResults: Result[] = bindings.map(bindingToResult);
+      setColumns(headVars.length ? headVars : Object.keys(bindings[0] || {}));
+      setRawRows(bindings);
+  
       setResults(cleanedResults);
       setQuestion("");
       if (cleanedResults.length === 0) {
