@@ -357,6 +357,23 @@ def detect_attribute(question: str):
     return unique_attrs
 
 
+def detect_intent(question: str):
+    """Detect higher-level intents for template queries.
+
+    Currently recognizes recycling chain questions like:
+    - "produit final" with "usine" or "recyclage"
+    - mentions of produit + recycl*
+    """
+    q = question.lower()
+    # robust to accents/variants by using partial stems
+    has_produit_final = ("produit final" in q) or ("produits finaux" in q) or ("produitfinal" in q)
+    has_recyclage = ("recycl" in q)  # matches recyclage / recyclé / recycler
+    has_usine = ("usine" in q)
+    if (has_produit_final and (has_usine or has_recyclage)) or ("usine de recyclage" in q and "produit" in q):
+        return "recycling_chain"
+    return None
+
+
 RELATIONS = {
     "produit": ["produit", "produisent", "fabriquent", "génèrent", "créent", "manufacturent"],
     "affecteA": ["affecté à", "affecte à", "affecté au", "affecté à un", "affecté à une", "affectés à", "affectés à un", "affectés à une", "assigné à", "assigné au", "assignés à", "supervise le", "supervise la", "supervise un", "supervise une"],
@@ -476,6 +493,11 @@ def extract_entities(question: str):
     if attrs:
         entities["attrs"] = attrs
 
+    # High-level intent detection
+    intent = detect_intent(question)
+    if intent:
+        entities["intent"] = intent
+
     return entities
 
 
@@ -486,6 +508,17 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 """
+
+    # Template query for recycling chain intent
+    if entities.get("intent") == "recycling_chain":
+        query = f"""{PREFIX}SELECT ?produitNom ?dechetNom WHERE {{
+  ?produit ex:nom ?produitNom ;
+           ex:produit_par ?usine .
+  ?centre ex:transfere_vers ?usine .
+  ?dechet ex:recyclé_par ?centre ;
+          ex:nom ?dechetNom .
+}}"""
+        return query
 
     classes = entities.get("classes", [])
     relations = entities.get("relations", [])

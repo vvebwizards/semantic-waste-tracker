@@ -8,9 +8,79 @@ interface Result {
   objectUri?: string;
 }
 
+type VarValue = { value: string; type?: string };
 interface Binding {
-  sujet?: { value: string };
-  objet?: { value: string };
+  // Typical names for generated queries
+  sujet?: VarValue;
+  objet?: VarValue;
+  // Allow any other SPARQL variable names for raw queries
+  [varName: string]: VarValue | undefined;
+}
+
+function formatValue(v?: VarValue): string | undefined {
+  if (!v) return undefined;
+  const val = v.value;
+  // If looks like a URI, extract last fragment or path segment
+  if (/^https?:\/\//i.test(val)) {
+    const last = val.split(/[#/]/).pop() || val;
+    return last.replace(/_/g, " ");
+  }
+  return val;
+}
+
+function bindingToResult(b: Binding): Result {
+  const keys = Object.keys(b);
+  const lowerToKey: Record<string, string> = {};
+  keys.forEach((k) => (lowerToKey[k.toLowerCase()] = k));
+
+  const prefer = (names: string[]): VarValue | undefined => {
+    for (const n of names) {
+      const key = lowerToKey[n];
+      if (key && b[key]) return b[key];
+    }
+    return undefined;
+  };
+
+  // 1) Prefer explicit produit/dechet naming
+  const produit = prefer(["produitnom", "produit", "productname", "product"]);
+  const dechet = prefer(["dechetnom", "dechet", "wastename", "waste"]);
+  if (produit) {
+    const subjectLabel = formatValue(produit) || produit.value;
+    if (dechet) {
+      const objectLabel = formatValue(dechet) || dechet.value;
+      return { label: subjectLabel, object: objectLabel };
+    }
+    return { label: subjectLabel };
+  }
+
+  // 2) Then try sujet/objet
+  const subject = prefer(["sujet", "subject"]);
+  const object = prefer(["objet", "object"]);
+  if (subject) {
+    const subjectLabel = formatValue(subject) || subject.value;
+    if (object) {
+      const objectLabel = formatValue(object) || object.value;
+      return {
+        label: subjectLabel,
+        object: objectLabel,
+        subjectUri: subject.value,
+        objectUri: object.value,
+      };
+    }
+    return { label: subjectLabel, subjectUri: subject.value };
+  }
+
+  // 3) Generic fallback: first variable as label, second as object
+  if (keys.length > 0) {
+    const firstKey = keys[0];
+    const secondKey = keys[1];
+    const firstVal = formatValue(b[firstKey]);
+    const secondVal = formatValue(b[secondKey as keyof Binding]);
+    if (firstVal && secondVal) return { label: firstVal, object: secondVal };
+    if (firstVal) return { label: firstVal };
+  }
+
+  return { label: "Résultat inconnu" };
 }
 
 function App() {
@@ -19,6 +89,9 @@ function App() {
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [columns, setColumns] = useState<string[]>([]);
+  const [rawRows, setRawRows] = useState<Binding[]>([]);
+  const [showTable, setShowTable] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -43,29 +116,10 @@ function App() {
       }
       
       const bindings: Binding[] = data?.data?.results?.bindings || [];
-      const cleanedResults: Result[] = bindings.map((b: Binding) => {
-        // Handle both sujet and objet
-        const subject = b.sujet?.value;
-        const object = b.objet?.value;
-        
-        if (subject) {
-          const subjectLabel = subject.split(/[#/]/).pop()?.replace(/_/g, " ") || subject;
-          if (object) {
-            const objectLabel = object.split(/[#/]/).pop()?.replace(/_/g, " ") || object;
-            return { 
-              label: subjectLabel, 
-              object: objectLabel,
-              subjectUri: subject,
-              objectUri: object
-            };
-          }
-          return { 
-            label: subjectLabel,
-            subjectUri: subject
-          };
-        }
-        return { label: "Résultat inconnu" };
-      });
+      const headVars: string[] = data?.data?.head?.vars || [];
+      const cleanedResults: Result[] = bindings.map(bindingToResult);
+      setColumns(headVars.length ? headVars : Object.keys(bindings[0] || {}));
+      setRawRows(bindings);
       
       setResults(cleanedResults);
       setQuestion("");
@@ -101,28 +155,10 @@ function App() {
       }
       
       const bindings: Binding[] = data?.data?.results?.bindings || [];
-      const cleanedResults: Result[] = bindings.map((b: Binding) => {
-        const subject = b.sujet?.value;
-        const object = b.objet?.value;
-        
-        if (subject) {
-          const subjectLabel = subject.split(/[#/]/).pop()?.replace(/_/g, " ") || subject;
-          if (object) {
-            const objectLabel = object.split(/[#/]/).pop()?.replace(/_/g, " ") || object;
-            return { 
-              label: subjectLabel, 
-              object: objectLabel,
-              subjectUri: subject,
-              objectUri: object
-            };
-          }
-          return { 
-            label: subjectLabel,
-            subjectUri: subject
-          };
-        }
-        return { label: "Résultat inconnu" };
-      });
+      const headVars: string[] = data?.data?.head?.vars || [];
+      const cleanedResults: Result[] = bindings.map(bindingToResult);
+      setColumns(headVars.length ? headVars : Object.keys(bindings[0] || {}));
+      setRawRows(bindings);
       
       setResults(cleanedResults);
       setSparql("");
@@ -203,6 +239,41 @@ function App() {
                   </div>
                 ))}
               </div>
+
+              {/* Full table toggle if more than two variables returned */}
+              {columns.filter(Boolean).length > 2 && (
+                <div style={{ marginTop: "1rem" }}>
+                  <button onClick={() => setShowTable((v) => !v)}>
+                    {showTable ? "Masquer toutes les colonnes" : "Afficher toutes les colonnes"}
+                  </button>
+                  {showTable && (
+                    <div style={{ overflowX: "auto", marginTop: "0.75rem" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr>
+                            {columns.map((c) => (
+                              <th key={c} style={{ textAlign: "left", padding: "8px", borderBottom: "1px solid #ddd" }}>
+                                {c}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rawRows.map((row, idx) => (
+                            <tr key={idx}>
+                              {columns.map((c) => (
+                                <td key={c} style={{ padding: "8px", borderBottom: "1px solid #f0f0f0" }}>
+                                  {formatValue(row[c]) || ""}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
