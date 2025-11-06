@@ -53,7 +53,28 @@ function bindingToResult(b: Binding): Result {
     return { label: subjectLabel };
   }
 
-  // 2) Then try sujet/objet
+  // 2) Check for nomComplet (full name) - prioritize this for supervisors
+  const nomComplet = prefer(["nomcomplet", "nom_complet", "fullname"]);
+  if (nomComplet) {
+    const subjectLabel = nomComplet.value; // Use the actual value, not formatted
+    const subject = prefer(["sujet", "subject"]);
+    const object = prefer(["objet", "object"]);
+    // Also check for nomCentre (center name) for better object display
+    const nomCentre = prefer(["nomcentre", "nom_centre", "centrename"]);
+    if (object) {
+      // Prefer nomCentre if available, otherwise format the object URI
+      const objectLabel = nomCentre ? nomCentre.value : (formatValue(object) || object.value);
+      return {
+        label: subjectLabel,
+        object: objectLabel,
+        subjectUri: subject?.value,
+        objectUri: object.value,
+      };
+    }
+    return { label: subjectLabel, subjectUri: subject?.value };
+  }
+
+  // 3) Then try sujet/objet
   const subject = prefer(["sujet", "subject"]);
   const object = prefer(["objet", "object"]);
   if (subject) {
@@ -70,7 +91,7 @@ function bindingToResult(b: Binding): Result {
     return { label: subjectLabel, subjectUri: subject.value };
   }
 
-  // 3) Generic fallback: first variable as label, second as object
+  // 4) Generic fallback: first variable as label, second as object
   if (keys.length > 0) {
     const firstKey = keys[0];
     const secondKey = keys[1];

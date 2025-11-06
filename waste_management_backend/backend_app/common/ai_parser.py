@@ -162,6 +162,10 @@ def detect_attribute(question: str):
         "nomCentre": [
             r'\b(?:quel|le|un)\s+centre\s+(?:a pour nom|nommé|appelé|:)\s*["«]?([^"»\n?]+?)(?:\?|$|["»])',
             r'\bcentre\s+(?:a pour nom|nommé|appelé|:)\s*["«]?([^"»\n?]+?)(?:\?|$|["»])',
+            r'\b(?:à\s+)?(?:un|le|la|les)?\s*centre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
+            r'\bcentre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
+            r'\b(?:le|un)\s+centre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
+            r'\b(?:qui|que|le|la|les|un|une)\s+(?:audite|audit|affecte|supervise|contrôle)\s+(?:le|la|les|un|une)?\s*centre\s+(?:de\s+)?(?:tri|compostage|recyclage|traitement)\s+([A-ZÉÈÀ][A-Za-zéèàêôûç\s\-]+)(?:\s|$|,|\?|\.|$)',
             r'\bnomCentre\s+["«]?([^"»\n]+)["»]?'
         ],
         "nomComplet": [
@@ -289,10 +293,10 @@ def detect_attribute(question: str):
         r'qualit[ée]\s+tri\s+(?:est|:)\s*(\d+\.?\d*)%'
     ],
     "localisation": [
-        r'[àa]\s+([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'[àa]\s+(?!un\b|une\b|le\b|la\b|les\b|des\b|du\b|de\b)([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
         r'dans\s+la\s+ville\s+(?:de\s+)?([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
-        r'localis[ée]\s+[àa]\s+([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
-        r'situ[ée]\s+[àa]\s+([A-ZÉÈÀ][a-zéèàêôûç\-]+)'
+        r'localis[ée]\s+[àa]\s+(?!un\b|une\b|le\b|la\b|les\b|des\b|du\b|de\b)([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'situ[ée]\s+[àa]\s+(?!un\b|une\b|le\b|la\b|les\b|des\b|du\b|de\b)([A-ZÉÈÀ][a-zéèàêôûç\-]+)'
     ]
     }
 
@@ -330,24 +334,44 @@ def detect_attribute(question: str):
     # Remove duplicates and prioritize specific attributes
     unique_attrs = []
     seen = set()
-    has_nomCentre = False
-    nomCentre_value = None
+    nomCentre_values = []
     
-    # First pass: identify nomCentre
+    # First pass: collect all nomCentre values
     for attr in attrs:
         if attr['name'] == 'nomCentre':
-            has_nomCentre = True
-            nomCentre_value = attr['value']
-            break
+            nomCentre_values.append(attr['value'])
     
-    # Second pass: add attributes, excluding nom if nomCentre exists
+    # If we have multiple nomCentre values, keep only the longest one (most complete)
+    nomCentre_value = None
+    if len(nomCentre_values) > 1:
+        nomCentre_value = max(nomCentre_values, key=len)
+        # Remove all nomCentre attributes from attrs
+        attrs = [attr for attr in attrs if attr['name'] != 'nomCentre']
+        # Add back only the longest nomCentre value
+        attrs.append({"name": "nomCentre", "value": nomCentre_value})
+    elif len(nomCentre_values) == 1:
+        nomCentre_value = nomCentre_values[0]
+    
+    # Second pass: add attributes, excluding nom and localisation if nomCentre exists
     for attr in attrs:
         attr_name = attr['name']
         attr_value = attr['value']
         
-        # If we have nomCentre, skip nom with the same value
-        if attr_name == "nom" and has_nomCentre and attr_value == nomCentre_value:
-            continue
+        # If we have nomCentre, skip nom with the same value or if nom is a substring of nomCentre
+        if attr_name == "nom" and nomCentre_value:
+            if attr_value == nomCentre_value or attr_value.lower() in nomCentre_value.lower():
+                continue
+        
+        # If we have nomCentre, skip localisation that is a substring of nomCentre
+        # (e.g., "Nord" should be removed if nomCentre is "Ariana Nord")
+        if attr_name == "localisation" and nomCentre_value:
+            if attr_value.lower() in nomCentre_value.lower():
+                continue
+        
+        # Skip nomCentre values that are substrings of other nomCentre values
+        if attr_name == "nomCentre" and nomCentre_value:
+            if attr_value != nomCentre_value and attr_value.lower() in nomCentre_value.lower():
+                continue
         
         key = (attr_name, attr_value)
         if key not in seen:
@@ -493,6 +517,12 @@ def extract_entities(question: str):
     if attrs:
         entities["attrs"] = attrs
 
+    # Detect if question asks for names (noms, nom complet, etc.)
+    if re.search(r'\b(?:les\s+)?noms?\b', q_lower) or re.search(r'\bnom\s+complet', q_lower):
+        # Check if it's about supervisors or other entities
+        if "superviseur" in q_lower or any("Superviseur" in cls for cls in found_classes):
+            entities["request_nomComplet"] = True
+
     # High-level intent detection
     intent = detect_intent(question)
     if intent:
@@ -555,6 +585,13 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     inverse_relations = ["régulé_par"]
     relation = relations[0] if relations else None
     
+    # Map "audite" to "affecteA" since that's what's used in the ontology
+    if relation == "audite":
+        relation = "affecteA"
+    
+    # Check if we need to add nomComplet to the query
+    request_nomComplet = entities.get("request_nomComplet", False)
+    
     if subject_class and object_class and relation:
         if relation in ["trie", "traite_par_compostage", "accepte_pour_tri"]:
             # Relations entre Centre_tri/Centre_compostage et Dechets
@@ -598,15 +635,34 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             query_lines.append(f"?objet a ?objetType .")
             query_lines.append(f"?objetType rdfs:subClassOf* ex:{object_class} .")
             select_vars.append("?objet")
+        
+        # Add nomComplet if requested (for supervisor names)
+        if request_nomComplet and "Superviseur" in subject_class:
+            query_lines.append(f"?sujet ex:nomComplet ?nomComplet .")
 
         for attr in attrs:
+            # Determine which entity (subject or object) the attribute applies to
+            # For centre-related attributes (nomCentre, statutOperationnel, etc.), apply to object
+            # For superviseur-related attributes (nomComplet, actif, etc.), apply to subject
+            target_var = "?sujet"  # Default to subject
+            if attr['name'] in ["nomCentre", "statutOperationnel", "typeCentre", "horairesOuverture"]:
+                target_var = "?objet"  # Centre attributes apply to object
+            elif attr['name'] in ["nomComplet", "actif", "fonction", "email", "telephone", "zoneAffectation"]:
+                target_var = "?sujet"  # Superviseur attributes apply to subject
+            
             # Handle boolean attributes - use FILTER for boolean comparison
             if attr['name'] in ["actif", "estCertifie", "estAgree"]:
                 bool_value = "true" if attr['value'].lower() in ['true', 'vrai', 'oui', '1'] else "false"
-                query_lines.append(f"?sujet ex:{attr['name']} ?{attr['name']} .")
+                query_lines.append(f"{target_var} ex:{attr['name']} ?{attr['name']} .")
                 query_lines.append(f"FILTER(?{attr['name']} = \"{bool_value}\"^^xsd:boolean)")
+            elif attr['name'] == "nomCentre":
+                # For nomCentre, use regex to match partial names (e.g., "Ariana Nord" matches "Centre Tri Ariana Nord")
+                query_lines.append(f"{target_var} ex:{attr['name']} ?{attr['name']} .")
+                # Escape special regex characters in the value
+                escaped_value = attr['value'].replace('\\', '\\\\').replace('^', '\\^').replace('$', '\\$').replace('.', '\\.').replace('*', '\\*').replace('+', '\\+').replace('?', '\\?').replace('(', '\\(').replace(')', '\\)').replace('[', '\\[').replace(']', '\\]').replace('{', '\\{').replace('}', '\\}').replace('|', '\\|')
+                query_lines.append(f"FILTER(REGEX(?{attr['name']}, \"{escaped_value}\", \"i\"))")
             else:
-                query_lines.append(f"?sujet ex:{attr['name']} \"{attr['value']}\" .")
+                query_lines.append(f"{target_var} ex:{attr['name']} \"{attr['value']}\" .")
 
     elif subject_class and relation:
         # Include subclasses for subject
@@ -712,6 +768,8 @@ if __name__ == "__main__":
         "Quel centre a pour nom Centre Compostage Manouba",
         "Quels superviseurs sont affectés à un centre de compostage",
         "Quels superviseurs sont affectés à un centre de tri Ariana Nord",
+        "Quels sont les noms des superviseurs qui audite le centre de Compostage Manouba",
+        "Quels sont les noms des superviseurs qui audite le centre de tri Ariana Nord",
         "Quels centres de compostage sont en service",
         "Quel centre a pour nom Centre Tri Ariana Nord",
         "Liste des centres de traitement",
