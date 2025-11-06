@@ -48,7 +48,12 @@ CLASSES = [
     "Usine_Recyclage_Batteries", "Usine_Recyclage_Bois", "Usine_Recyclage_Electronique",
     "Usine_Recyclage_Metal", "Usine_Recyclage_Plastique", "Usine_Recyclage_Textile", "Usine_Recyclage_Verre",
     "Transporteur", "Transporteur_Camion-benne", "Transporteur_Camion-grue", "Transporteur_spécialisé",
-    "Collecteur", "Collecteur_Conteneur", "Collecteur_Municipal", "Collecteur_Prive"
+    "Collecteur", "Collecteur_Conteneur", "Collecteur_Municipal", "Collecteur_Prive",
+    "Centre_traitement", "Centre_compostage", "Centre_tri", 
+    "Centre_Compostage_Collectif", "Centre_Compostage_Individuel", "Centre_Compostage_Industriel",
+    "Centre_Tri_Automatise", "Centre_Tri_Densite", "Centre_Tri_Magnetique", "Centre_Tri_Manuel",
+    "Centre_Tri_Mixte", "Centre_Tri_Optique",
+    "Dechets_Organique", "Dechets_Plastique", "Dechets_Metal", "Dechets_Papier", "Dechets_Textile"
 ]
 
 CLASS_KEYWORDS = {
@@ -89,7 +94,19 @@ CLASS_KEYWORDS = {
     "Transporteur_spécialisé": ["transporteur spécialisé", "transporteur specialise", "transporteur spécialisé déchets", "transporteur spécialisé dangereux"],
     "Collecteur_Conteneur": ["collecteur conteneur", "collecte conteneur", "collecteur à conteneur"],
     "Collecteur_Municipal": ["collecteur municipal", "collecte municipale", "collecteur municipal", "collecte municipale"],
-    "Collecteur_Prive": ["collecteur privé", "collecteur prive", "collecte privée", "collecte privee"]
+    "Collecteur_Prive": ["collecteur privé", "collecteur prive", "collecte privée", "collecte privee"],
+        "Centre_compostage": ["centre compostage", "centres compostage", "compostage", "centre de compostage", "composteur"],
+    "Centre_tri": ["centre tri", "centres tri", "tri", "centre de tri", "centres de tri", "unité tri"],
+    "Centre_Compostage_Collectif": ["compostage collectif", "centre compostage collectif", "composteur collectif"],
+    "Centre_Compostage_Industriel": ["compostage industriel", "centre compostage industriel", "composteur industriel"],
+    "Centre_Tri_Automatise": ["tri automatisé", "tri automatise", "centre tri automatisé", "tri automatique"],
+    "Centre_Tri_Manuel": ["tri manuel", "centre tri manuel", "tri à la main"],
+    "Centre_Tri_Optique": ["tri optique", "centre tri optique", "tri par caméra"],
+    "Centre_Tri_Magnetique": ["tri magnétique", "tri magnetique", "aimant", "séparation magnétique"],
+    "Dechets_Organique": ["organique", "restes alimentaires", "déchets alimentaires", "biologique", "compostable", "biodéchet"],
+    "Dechets_Plastique": ["plastique", "emballage plastique", "déchets plastiques", "bouteille plastique"],
+    "Dechets_Metal": ["métal", "ferraille", "canette", "boîte conserve", "déchets métalliques"],
+    "Dechets_Papier": ["papier", "carton", "journal", "emballage carton"]
 }
 
 
@@ -241,7 +258,42 @@ def detect_attribute(question: str):
             r'\bzone\s+de\s+couverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
             r'\bzone\s+couverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?',
             r'\bzoneCouverture\s+(?:est|:)\s*["«]?([^"»\n]+)["»]?'
-        ]
+        ],
+
+         "capacite_journaliere": [
+        r'capacit[ée]\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'capacit[ée]\s+journali[èe]re\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'peut traiter\s+(\d+\.?\d*)\s+tonnes',
+        r'traite\s+(\d+\.?\d*)\s+tonnes'
+    ],
+    "debit_tri_heure": [
+        r'd[ée]bit\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'd[ée]bit\s+tri\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'trie\s+(\d+\.?\d*)\s+tonnes\/heure',
+        r'capacit[ée]\s+tri\s+(?:est|:)\s*(\d+\.?\d*)'
+    ],
+    "temps_compostage_jours": [
+        r'temps\s+compostage\s+(?:est|:)\s*(\d+)',
+        r'dur[ée]e\s+compostage\s+(?:est|:)\s*(\d+)',
+        r'composte\s+en\s+(\d+)\s+jours',
+        r'temps\s+n[ée]cessaire\s+(?:est|:)\s*(\d+)'
+    ],
+    "temperature_moyenne": [
+        r'temp[ée]rature\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'temp[ée]rature\s+moyenne\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'chauffe[ à]\s+(\d+\.?\d*)\s+degr[ée]s'
+    ],
+    "taux_purete_sortie": [
+        r'taux\s+puret[ée]\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'puret[ée]\s+sortie\s+(?:est|:)\s*(\d+\.?\d*)',
+        r'qualit[ée]\s+tri\s+(?:est|:)\s*(\d+\.?\d*)%'
+    ],
+    "localisation": [
+        r'[àa]\s+([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'dans\s+la\s+ville\s+(?:de\s+)?([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'localis[ée]\s+[àa]\s+([A-ZÉÈÀ][a-zéèàêôûç\-]+)',
+        r'situ[ée]\s+[àa]\s+([A-ZÉÈÀ][a-zéèàêôûç\-]+)'
+    ]
     }
 
     # First check for boolean attributes separately to avoid duplicates
@@ -312,7 +364,11 @@ RELATIONS = {
     "régulé_par": ["régulé par", "réglementé par", "contrôlé par", "supervisé par"],
     "interagit_avec": ["interagit avec", "interagissent avec", "collabore avec", "collaborent avec"],
     "transporté_par": ["transporté par", "transporte par", "transportés par", "transportent par", "transporté", "transportée", "transportés", "transportées"],
-    "collecté_par": ["collecté par", "collecte par", "collectés par", "collectent par", "collecté", "collectée", "collectés", "collectées"]
+    "collecté_par": ["collecté par", "collecte par", "collectés par", "collectent par", "collecté", "collectée", "collectés", "collectées"],
+        "trie": ["trie", "trient", "sépare", "séparent", "classe", "classent", "triage"],
+    "traite_par_compostage": ["traite par compostage", "composte", "compostent", "transforme en compost", "valorise organique"],
+    "envoie_vers_compostage": ["envoie vers compostage", "envoie au compostage", "dirige vers compostage", "transfère vers compostage"],
+    "accepte_pour_tri": ["accepte pour tri", "accepte au tri", "prend pour tri", "reçoit pour tri"]
 }
 
 def detect_relation(question: str):
@@ -361,6 +417,40 @@ def extract_entities(question: str):
         found_classes.add("Transporteur")
     if "tous les collecteurs" in q_lower or "liste des collecteurs" in q_lower or "collecteurs" in q_lower:
         found_classes.add("Collecteur")
+
+            # Détection spécifique pour tri et compostage
+    if any(word in q_lower for word in ["tri", "trie", "triage"]):
+        if "automat" in q_lower:
+            found_classes.add("Centre_Tri_Automatise")
+        elif "manuel" in q_lower:
+            found_classes.add("Centre_Tri_Manuel")
+        elif "optique" in q_lower:
+            found_classes.add("Centre_Tri_Optique")
+        elif "magnétique" in q_lower or "magnetique" in q_lower:
+            found_classes.add("Centre_Tri_Magnetique")
+        else:
+            found_classes.add("Centre_tri")
+    
+    if any(word in q_lower for word in ["compost", "compostage"]):
+        if "industriel" in q_lower:
+            found_classes.add("Centre_Compostage_Industriel")
+        elif "collectif" in q_lower:
+            found_classes.add("Centre_Compostage_Collectif")
+        elif "individuel" in q_lower:
+            found_classes.add("Centre_Compostage_Individuel")
+        else:
+            found_classes.add("Centre_compostage")
+    
+    # Détection des déchets spécifiques
+    if "organique" in q_lower or "compostable" in q_lower:
+        found_classes.add("Dechets_Organique")
+    if "plastique" in q_lower:
+        found_classes.add("Dechets_Plastique")
+    if "métal" in q_lower or "metal" in q_lower:
+        found_classes.add("Dechets_Metal")
+    if "papier" in q_lower or "carton" in q_lower:
+        found_classes.add("Dechets_Papier")
+
 
     
 
@@ -433,6 +523,23 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     relation = relations[0] if relations else None
     
     if subject_class and object_class and relation:
+        if relation in ["trie", "traite_par_compostage", "accepte_pour_tri"]:
+            # Relations entre Centre_tri/Centre_compostage et Dechets
+            query_lines.append(f"?sujet a ?sujetType .")
+            query_lines.append(f"?sujetType rdfs:subClassOf* ex:{subject_class} .")
+            query_lines.append(f"?sujet ex:{relation} ?objet .")
+            query_lines.append(f"?objet a ?objetType .")
+            query_lines.append(f"?objetType rdfs:subClassOf* ex:{object_class} .")
+            select_vars.append("?objet")
+        
+        elif relation == "envoie_vers_compostage":
+            # Relation entre Centre_tri et Centre_compostage
+            query_lines.append(f"?sujet a ?sujetType .")
+            query_lines.append(f"?sujetType rdfs:subClassOf* ex:{subject_class} .")
+            query_lines.append(f"?sujet ex:{relation} ?objet .")
+            query_lines.append(f"?objet a ?objetType .")
+            query_lines.append(f"?objetType rdfs:subClassOf* ex:{object_class} .")
+            select_vars.append("?objet")
         # Check if relation is inverse
         if relation in inverse_relations:
             # For régulé_par: Dechet régulé_par Superviseur
@@ -586,6 +693,18 @@ if __name__ == "__main__":
         "Quels collecteurs sont agréés",
         "Quel collecteur collecte des déchets organiques",
         "Quels déchets sont collectés par un collecteur municipal"
+
+
+                "Quels centres de tri traitent les déchets plastiques",
+        "Quel centre de compostage accepte les déchets organiques",
+        "Liste des centres de tri automatique",
+        "Quel centre trie les déchets métalliques",
+        "Centres de compostage industriel à Paris",
+        "Quel centre envoie vers le compostage",
+        "Centres de tri avec capacité > 50 tonnes",
+        "Quels déchets sont triés par le centre TriAuto Paris",
+        "Centres de compostage avec température > 60°C",
+        "Quel centre a pour nom Compost Industriel Lille"
     ]
 
     for q in tests:
