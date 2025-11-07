@@ -788,7 +788,6 @@ if __name__ == "__main__":
 
 
                 "Quels centres de tri traitent les déchets plastiques",
-        "Quel centre de compostage accepte les déchets organiques",
         "Liste des centres de tri automatique",
         "Quel centre trie les déchets métalliques",
         "Centres de compostage industriel à Paris",

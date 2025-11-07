@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./pages.css";
+import "./producer.css";
 
 interface Waste {
   waste: { value: string };
