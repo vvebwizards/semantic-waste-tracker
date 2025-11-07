@@ -394,17 +394,22 @@ def create_producer(producer_id, name, producer_type, city, address="", postal_c
         owl_class = type_mapping.get(producer_type.lower(), "Producteur")
         producer_uri = f"http://www.semanticweb.org/wiemb/ontologies/2025/8/untitled-ontology-2#indiv_{name.replace(' ', '_')}_{producer_id}"
         
+        # Escape special characters for SPARQL
+        escaped_name = name.replace('\\', '\\\\').replace('"', '\\"')
+        escaped_city = city.replace('\\', '\\\\').replace('"', '\\"')
+        
         # Construire les triples un par un pour éviter les problèmes de syntaxe
         triples = [
             f'<{producer_uri}> a onto:{owl_class}',
             f'<{producer_uri}> onto:idProducteur "{producer_id}"',
-            f'<{producer_uri}> onto:nom "{name.replace('"', '\\"')}"',
-            f'<{producer_uri}> onto:ville "{city.replace('"', '\\"')}"',
+            f'<{producer_uri}> onto:nom "{escaped_name}"',
+            f'<{producer_uri}> onto:ville "{escaped_city}"',
             f'<{producer_uri}> onto:created_at "{datetime.now().isoformat()}"^^xsd:dateTime'
         ]
         
         if address:
-            triples.append(f'<{producer_uri}> onto:adresse "{address.replace('"', '\\"')}"')
+            escaped_address = address.replace('\\', '\\\\').replace('"', '\\"')
+            triples.append(f'<{producer_uri}> onto:adresse "{escaped_address}"')
         if postal_code:
             triples.append(f'<{producer_uri}> onto:codePostal "{postal_code}"')
         

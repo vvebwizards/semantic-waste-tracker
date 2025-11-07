@@ -68,4 +68,3 @@ class GetCenterDetailsView(View):
         
         result = get_center_details(center_uri)
         return JsonResponse(result)
-

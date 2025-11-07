@@ -242,4 +242,3 @@ def get_center_details(center_uri):
         return {"status": "success", "data": results}
     except Exception as e:
         return {"status": "error", "message": str(e)}
-

@@ -46,19 +46,25 @@ function bindingToResult(b: Binding): Result {
     }
     return undefined;
   };
-  
+
   // Prioritize nomComplet for supervisor names
   const nomComplet = prefer(["nomcomplet", "nomComplet", "nom_complet"]);
   if (nomComplet) {
     const fullName = formatValue(nomComplet) || nomComplet.value;
-    const object = prefer(["objet", "object", "nomcentre", "nomCentre", "nom_centre"]);
+    const object = prefer([
+      "objet",
+      "object",
+      "nomcentre",
+      "nomCentre",
+      "nom_centre",
+    ]);
     if (object) {
       const objectLabel = formatValue(object) || object.value;
       return { label: fullName, object: objectLabel };
     }
     return { label: fullName };
   }
-  
+
   const produit = prefer(["produitnom", "produit", "productname", "product"]);
   const dechet = prefer(["dechetnom", "dechet", "wastename", "waste"]);
   if (produit) {
@@ -111,14 +117,13 @@ function Navigation() {
           <Link to="/producers" className="nav-link">
             Producteurs
           </Link>
-          <Link to="/wastes" className="nav-link">
-            Déchets
-          </Link>
+
           <Link to="/superviseurs" className="nav-link">
             Superviseur
           </Link>
-          <Link to="/centre_de_tri" className="nav-link">
-            Centre de tri
+
+          <Link to="/tri&compostage" className="nav-link">
+            Tri & Compostage
           </Link>
           <Link to="/statistics" className="nav-link">
             Statistiques
@@ -347,12 +352,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/producers" element={<Producers />} />
-          <Route path="/wastes" element={<Wastes />} />
+
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/superviseurs" element={<Supervisors />} />
           <Route path="/centre_de_tri" element={<SortingCenters />} />
-          <Route path="/producers/:producerUri/wastes" element={<ProducerWastes />} />
-          <Route path="/tri-compostage" element={<TriCompostage />} />
+          <Route
+            path="/producers/:producerUri/wastes"
+            element={<ProducerWastes />}
+          />
+          <Route path="/tri&compostage" element={<TriCompostage />} />
         </Routes>
       </div>
     </Router>

@@ -9,4 +9,3 @@ urlpatterns = [
     path('centers/search/', views.SearchSortingCentersView.as_view(), name='search_sorting_centers'),
     path('centers/details/', views.GetCenterDetailsView.as_view(), name='get_center_details'),
 ]
-
