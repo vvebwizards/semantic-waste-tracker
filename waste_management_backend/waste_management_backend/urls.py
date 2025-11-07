@@ -21,5 +21,7 @@ from django.urls import include
 
 urlpatterns = [
     path('api/production/', include('backend_app.production.urls')),
+    path('api/supervision/', include('backend_app.supervision.urls')),
+    path('api/tri_compostage/', include('backend_app.tri_compostage.urls')),
     path('api/', include('backend_app.urls')),
 ]

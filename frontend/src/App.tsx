@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Producers from "./Producers";
 import Wastes from "./Wastes";
 import Statistics from "./Statistics";
+import Supervisors from "./Supervisors";
+import SortingCenters from "./SortingCenters";
 import "./App.css";
 
 interface Result {
@@ -41,6 +43,19 @@ function bindingToResult(b: Binding): Result {
     }
     return undefined;
   };
+  
+  // Prioritize nomComplet for supervisor names
+  const nomComplet = prefer(["nomcomplet", "nomComplet", "nom_complet"]);
+  if (nomComplet) {
+    const fullName = formatValue(nomComplet) || nomComplet.value;
+    const object = prefer(["objet", "object", "nomcentre", "nomCentre", "nom_centre"]);
+    if (object) {
+      const objectLabel = formatValue(object) || object.value;
+      return { label: fullName, object: objectLabel };
+    }
+    return { label: fullName };
+  }
+  
   const produit = prefer(["produitnom", "produit", "productname", "product"]);
   const dechet = prefer(["dechetnom", "dechet", "wastename", "waste"]);
   if (produit) {
@@ -315,8 +330,8 @@ function App() {
           <Route path="/producers" element={<Producers />} />
           <Route path="/wastes" element={<Wastes />} />
           <Route path="/statistics" element={<Statistics />} />
-          <Route path="/superviseurs" element={<div className="page-container"><h1>Page Superviseurs</h1><p>Contenu à venir...</p></div>} />
-          <Route path="/centre_de_tri" element={<div className="page-container"><h1>Page Centre de tri</h1><p>Contenu à venir...</p></div>} />
+          <Route path="/superviseurs" element={<Supervisors />} />
+          <Route path="/centre_de_tri" element={<SortingCenters />} />
         </Routes>
       </div>
     </Router>
