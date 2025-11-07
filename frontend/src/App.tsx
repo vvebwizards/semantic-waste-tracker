@@ -5,7 +5,10 @@ import Wastes from "./Wastes";
 import Statistics from "./Statistics";
 import Supervisors from "./Supervisors";
 import SortingCenters from "./SortingCenters";
+import TriCompostage from "./TriCompostage";
 import "./App.css";
+import AddProducer from "./AddProducer";
+import ProducerWastes from "./ProducerWastes";
 
 interface Result {
   label: string;
@@ -83,7 +86,7 @@ function bindingToResult(b: Binding): Result {
     return { label: subjectLabel, subjectUri: subject.value };
   }
 
-   if (keys.length > 0) {
+  if (keys.length > 0) {
     const firstKey = keys[0];
     const secondKey = keys[1];
     const firstVal = formatValue(b[firstKey]);
@@ -143,7 +146,7 @@ function Home() {
     setLoading(true);
     setError("");
     setResults([]);
-    
+
     try {
       const res = await fetch(`${API_URL}/api/nlp_query/`, {
         method: "POST",
@@ -151,19 +154,19 @@ function Home() {
         body: JSON.stringify({ question }),
       });
       const data = await res.json();
-      
+
       if (data.status === "error") {
         setError(data.message || "Une erreur s'est produite");
         setLoading(false);
         return;
       }
-      
+
       const bindings: Binding[] = data?.data?.results?.bindings || [];
-       const headVars: string[] = data?.data?.head?.vars || [];
+      const headVars: string[] = data?.data?.head?.vars || [];
       const cleanedResults: Result[] = bindings.map(bindingToResult);
       setColumns(headVars.length ? headVars : Object.keys(bindings[0] || {}));
       setRawRows(bindings);
-  
+
       setResults(cleanedResults);
       setQuestion("");
       if (cleanedResults.length === 0) {
@@ -182,7 +185,7 @@ function Home() {
     setLoading(true);
     setError("");
     setResults([]);
-    
+
     try {
       const res = await fetch(`${API_URL}/api/sparql/`, {
         method: "POST",
@@ -190,19 +193,19 @@ function Home() {
         body: JSON.stringify({ sparql }),
       });
       const data = await res.json();
-      
+
       if (data.status === "error") {
         setError(data.message || "Une erreur s'est produite");
         setLoading(false);
         return;
       }
-      
+
       const bindings: Binding[] = data?.data?.results?.bindings || [];
       const headVars: string[] = data?.data?.head?.vars || [];
       const cleanedResults: Result[] = bindings.map(bindingToResult);
       setColumns(headVars.length ? headVars : Object.keys(bindings[0] || {}));
       setRawRows(bindings);
-      
+
       setResults(cleanedResults);
       setSparql("");
       if (cleanedResults.length === 0) {
@@ -278,19 +281,29 @@ function Home() {
                 ))}
               </div>
 
-              {/* Full table toggle if more than two variables returned */}
               {columns.filter(Boolean).length > 2 && (
                 <div style={{ marginTop: "1rem" }}>
                   <button onClick={() => setShowTable((v) => !v)}>
-                    {showTable ? "Masquer toutes les colonnes" : "Afficher toutes les colonnes"}
+                    {showTable
+                      ? "Masquer toutes les colonnes"
+                      : "Afficher toutes les colonnes"}
                   </button>
                   {showTable && (
                     <div style={{ overflowX: "auto", marginTop: "0.75rem" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <table
+                        style={{ width: "100%", borderCollapse: "collapse" }}
+                      >
                         <thead>
                           <tr>
                             {columns.map((c) => (
-                              <th key={c} style={{ textAlign: "left", padding: "8px", borderBottom: "1px solid #ddd" }}>
+                              <th
+                                key={c}
+                                style={{
+                                  textAlign: "left",
+                                  padding: "8px",
+                                  borderBottom: "1px solid #ddd",
+                                }}
+                              >
                                 {c}
                               </th>
                             ))}
@@ -300,7 +313,13 @@ function Home() {
                           {rawRows.map((row, idx) => (
                             <tr key={idx}>
                               {columns.map((c) => (
-                                <td key={c} style={{ padding: "8px", borderBottom: "1px solid #f0f0f0" }}>
+                                <td
+                                  key={c}
+                                  style={{
+                                    padding: "8px",
+                                    borderBottom: "1px solid #f0f0f0",
+                                  }}
+                                >
                                   {formatValue(row[c]) || ""}
                                 </td>
                               ))}
@@ -332,6 +351,8 @@ function App() {
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/superviseurs" element={<Supervisors />} />
           <Route path="/centre_de_tri" element={<SortingCenters />} />
+          <Route path="/producers/:producerUri/wastes" element={<ProducerWastes />} />
+          <Route path="/tri-compostage" element={<TriCompostage />} />
         </Routes>
       </div>
     </Router>

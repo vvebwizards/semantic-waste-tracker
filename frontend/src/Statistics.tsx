@@ -12,7 +12,7 @@ import {
   LineElement
 } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import "./pages.css";
+import "./stats.css";
 
 ChartJS.register(
   CategoryScale,
