@@ -437,7 +437,7 @@ function Producers() {
     const producerUri = producer.producer?.value;
 
     return (
-      <div key={index} className="card">
+      <div key={index} className="card" style={{backgroundColor:"white"}}>
         <div className="card-header">
           <h3>{producerName}</h3>
           <span className={`type-badge type-${getTypeLabel(producerType).toLowerCase()}`}>
