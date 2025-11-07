@@ -764,7 +764,6 @@ if __name__ == "__main__":
         "Quel superviseur audite le centre de tri Ariana Nord",
         "Quel superviseur national supervise le centre compostage Manouba",
 
-        "Quels centres de recyclage sont suspendus",
         "Quel centre a pour nom Centre Compostage Manouba",
         "Quels superviseurs sont affectés à un centre de compostage",
         "Quels superviseurs sont affectés à un centre de tri Ariana Nord",
@@ -772,8 +771,9 @@ if __name__ == "__main__":
         "Quels sont les noms des superviseurs qui audite le centre de tri Ariana Nord",
         "Quels centres de compostage sont en service",
         "Quel centre a pour nom Centre Tri Ariana Nord",
-        "Liste des centres de traitement",
+        "Quel centre a pour nom Centre Tri Ariana Nord",
         "Liste des superviseurs",
+        "Quels centres de recyclage sont suspendus",
         "Quels superviseurs sont actifs",
         
         "Liste des transporteurs",

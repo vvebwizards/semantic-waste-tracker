@@ -312,6 +312,40 @@ body {
   border-color: #8b5cf6;
 }
 
+.type-industriel { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+.type-agricole { background: linear-gradient(135deg, #10b981, #047857); color: white; }
+.type-commercial { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+.type-hospitalier { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.type-residentiel { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+.type-general { background: linear-gradient(135deg, #64748b, #475569); color: white; }
+.type-environnemental { background: linear-gradient(135deg, #10b981, #047857); color: white; }
+.type-municipal { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+.type-national { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+.type-regional { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+.type-securite { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.type-qualite { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+.type-automatise { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+.type-manuel { background: linear-gradient(135deg, #10b981, #047857); color: white; }
+.type-optique { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+.type-magnetique { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.type-densite { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+.type-mixte { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+.type-compostage { background: linear-gradient(135deg, #10b981, #047857); color: white; }
+.type-recyclage { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  color: white;
+}
+
+.status-active { background: linear-gradient(135deg, #10b981, #047857); }
+.status-maintenance { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.status-inactive { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.status-unknown { background: linear-gradient(135deg, #64748b, #475569); }
 .type-general {
   background: var(--gray-100);
   color: var(--gray-700);
@@ -387,9 +421,25 @@ body {
   color: white;
 }
 
+.action-btn.danger {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+}
+
 .action-btn.danger:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
+  background-color: #dc2626;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Grille de Statistiques */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
 /* États Vides */
@@ -776,4 +826,211 @@ body {
   .form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.card, .stat-card, .chart-wrapper {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.centers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.center-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.center-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.center-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.center-card-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f2937;
+  flex: 1;
+}
+
+.center-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.center-card-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.center-card-content strong {
+  color: #1f2937;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    max-width: 100%;
+    max-height: 95vh;
+  }
+  
+  .modal-header {
+    padding: 16px;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .modal-body {
+    padding: 16px;
+  }
+  
+  .centers-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+select.form-input {
+  cursor: pointer;
+  background-color: white;
+}
+
+select.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+  cursor: pointer;
 }
