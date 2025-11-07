@@ -524,3 +524,40 @@ def get_producer_types():
         return {"status": "success", "data": results}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+def get_producer_wastes_detailed(producer_uri):
+    """Récupère tous les déchets d'un producteur spécifique avec détails complets"""
+    try:
+        sparql = SPARQLWrapper(FUSEKI_URL + "/query")
+        
+        query = f"""
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX onto: <http://www.semanticweb.org/wiemb/ontologies/2025/8/untitled-ontology-2#>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        
+        SELECT ?waste ?id ?name ?type ?weight ?quantity ?dangerLevel ?creationDate ?description WHERE {{
+            <{producer_uri}> onto:produit ?waste .
+            ?waste onto:idDechet ?id .
+            OPTIONAL {{ ?waste onto:nom ?name }}
+            OPTIONAL {{ ?waste onto:poids ?weight }}
+            OPTIONAL {{ ?waste onto:quantite ?quantity }}
+            OPTIONAL {{ ?waste onto:niveauDangerosite ?dangerLevel }}
+            OPTIONAL {{ ?waste onto:dateCreation ?creationDate }}
+            OPTIONAL {{ ?waste onto:description ?description }}
+            
+            # Récupérer le type de déchet
+            OPTIONAL {{
+                ?waste a ?type .
+                FILTER(STRSTARTS(STR(?type), STR(onto:)))
+            }}
+        }}
+        ORDER BY DESC(?creationDate) ?id
+        """
+        
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        return {"status": "success", "data": results}
+        
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

@@ -6,6 +6,7 @@ import Statistics from "./Statistics";
 import TriCompostage from "./TriCompostage";
 import "./App.css";
 import AddProducer from "./AddProducer";
+import ProducerWastes from "./ProducerWastes";
 
 interface Result {
   label: string;
@@ -343,6 +344,7 @@ function App() {
               </div>
             }
           />
+          <Route path="/producers/:producerUri/wastes" element={<ProducerWastes />} />
           <Route path="/tri-compostage" element={<TriCompostage />} />
           <Route path="/centre_de_tri" element={<TriCompostage />} />
 

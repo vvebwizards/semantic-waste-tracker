@@ -468,15 +468,14 @@ function Producers() {
         </div>
 
         <div className="card-actions">
-          <button 
-            className="action-btn primary"
-            onClick={() => {
-              console.log('Voir déchets de:', producerUri);
-            }}
-          >
-            <ChartIcon />
-            Déchets
-          </button>
+            <button 
+        className="action-btn primary"
+        onClick={() => producerUri && navigate(`/producers/${encodeURIComponent(producerUri)}/wastes`)}
+        disabled={!producerUri}
+      >
+        <ChartIcon />
+        Voir Déchets
+      </button>
           <button 
             className="action-btn warning"
             onClick={() => producerUri && navigate(`/producers/edit/${encodeURIComponent(producerUri)}`)}

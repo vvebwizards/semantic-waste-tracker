@@ -25,6 +25,8 @@ from backend_app.production.producer_queries import (
     get_producer_by_id,
     get_producer_types,
     create_producer,
+    get_producer_wastes_detailed,
+
 
 )
 
@@ -204,4 +206,18 @@ class GetProducerTypesView(View):
         """Récupère la liste des types de producteurs disponibles"""
         
         result = get_producer_types()
+        return JsonResponse(result)
+
+class GetProducerWastesDetailedView(View):
+    def get(self, request):
+        """Récupère les déchets détaillés d'un producteur spécifique"""
+        
+        producer_uri = request.GET.get('producer_uri')
+        if not producer_uri:
+            return JsonResponse({
+                "status": "error", 
+                "message": "Le paramètre 'producer_uri' est requis"
+            }, status=400)
+        
+        result = get_producer_wastes_detailed(producer_uri)
         return JsonResponse(result)

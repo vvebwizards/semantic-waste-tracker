@@ -66,7 +66,7 @@ function AddProducer() {
     try {
       setLoading(true);
       const decodedUri = decodeURIComponent(uri);
-      const response = await fetch(`${API_URL}/api/production/producers/details/?producer_uri=${encodeURIComponent(decodedUri)}`);
+      const response = await fetch(`${API_URL}/api/production/producers/detailed/?producer_uri=${encodeURIComponent(decodedUri)}`);
       const result = await response.json();
 
       if (result.status === "success" && result.data.results.bindings.length > 0) {

@@ -18,4 +18,5 @@ urlpatterns = [
     path('producers/<str:producer_id>/', views.GetProducerByIdView.as_view(), name='get_producer_by_id'),
     path('producers/update/<path:producer_uri>/', views.UpdateProducerView.as_view(), name='update_producer'),
     path('producers/delete/<path:producer_uri>', views.DeleteProducerView.as_view(), name='delete_producer'),
+    path('producers/wastes/detailed/', views.GetProducerWastesDetailedView.as_view(), name='producer_wastes_detailed'),
 ]
